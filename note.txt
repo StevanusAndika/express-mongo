@@ -1,4 +1,3 @@
 username:stevanus
 password:v84LEWVF95IXcq2z
 
-ongodb+srv://stevanus:<db_password>@steven.pkmcy.mongodb.net/?retryWrites=true&w=majority&appName=Steven
