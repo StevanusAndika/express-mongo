@@ -1,13 +1,17 @@
-// Import PrismaClient
+//import PrismaClient
 const { PrismaClient } = require('@prisma/client');
 
-// Init Prisma Client
+//init prisma client
 const prisma = new PrismaClient();
 
-// Function findPosts
+// Import validationResult from express-validator
+const { validationResult } = require("express-validator");
+
+//function findPosts
 const findPosts = async (req, res) => {
     try {
-        // Get all posts from database
+
+        //get all posts from database
         const posts = await prisma.post.findMany({
             select: {
                 id: true,
@@ -21,24 +25,62 @@ const findPosts = async (req, res) => {
             },
         });
 
-        // Send response
-        res.status(200).json({
+        //send response
+        res.status(200).send({
             success: true,
             message: "Get All Posts Successfully",
             data: posts,
         });
 
     } catch (error) {
-        console.error("Error fetching posts:", error);
-        res.status(500).json({
+        res.status(500).send({
             success: false,
             message: "Internal server error",
-            error: error.message
         });
     }
 };
 
-// Export function
-module.exports = {
-    findPosts,
+//function createPost
+const createPost = async (req, res) => {
+
+    // Periksa hasil validasi
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        // Jika ada error, kembalikan error ke pengguna
+        return res.status(422).json({
+            success: false,
+            message: "Validation error",
+            errors: errors.array(),
+        });
+    }
+
+    try {
+
+        //insert data
+        const post = await prisma.post.create({
+            data: {
+                title: req.body.title,
+                content: req.body.content,
+            },
+        });
+
+        res.status(201).send({
+            success: true,
+            message: "Post Created Successfully",
+            data: post,
+        });
+
+    } catch (error) {
+        res.status(500).send({
+            success: false,
+            message: "Internal server error",
+        });
+    }
 };
+
+//export function
+module.exports = {
+    findPosts,  
+    createPost,
+}
