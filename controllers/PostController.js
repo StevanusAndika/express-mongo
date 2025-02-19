@@ -1,22 +1,22 @@
-//import PrismaClient
-const { PrismaClient } = require('@prisma/client');
+// Import PrismaClient
+const { PrismaClient } = require("@prisma/client");
 
-//init prisma client
+// Init Prisma Client
 const prisma = new PrismaClient();
 
 // Import validationResult from express-validator
 const { validationResult } = require("express-validator");
 
-//function findPosts
+// Function get all posts
 const findPosts = async (req, res) => {
     try {
-
-        //get all posts from database
+        // Get all posts from database
         const posts = await prisma.post.findMany({
             select: {
                 id: true,
-                title: true,
-                content: true,
+                oshi_name: true,
+                idol_group_name: true,
+                tahun_debut: true,
                 createdAt: true,
                 updatedAt: true,
             },
@@ -25,29 +25,27 @@ const findPosts = async (req, res) => {
             },
         });
 
-        //send response
-        res.status(200).send({
+        // Send response
+        res.status(200).json({
             success: true,
             message: "Get All Posts Successfully",
             data: posts,
         });
 
     } catch (error) {
-        res.status(500).send({
+        console.error(error);
+        res.status(500).json({
             success: false,
             message: "Internal server error",
         });
     }
 };
 
-//function createPost
+// Function createPost
 const createPost = async (req, res) => {
-
     // Periksa hasil validasi
     const errors = validationResult(req);
-
     if (!errors.isEmpty()) {
-        // Jika ada error, kembalikan error ke pengguna
         return res.status(422).json({
             success: false,
             message: "Validation error",
@@ -56,31 +54,32 @@ const createPost = async (req, res) => {
     }
 
     try {
-
-        //insert data
+        // Insert data ke database
         const post = await prisma.post.create({
             data: {
-                title: req.body.title,
-                content: req.body.content,
+                oshi_name: req.body.oshi_name,
+                idol_group_name: req.body.idol_group_name,
+                tahun_debut: parseInt(req.body.tahun_debut), // Pastikan dikonversi ke integer
             },
         });
 
-        res.status(201).send({
+        res.status(201).json({
             success: true,
             message: "Post Created Successfully",
             data: post,
         });
 
     } catch (error) {
-        res.status(500).send({
+        console.error(error);
+        res.status(500).json({
             success: false,
             message: "Internal server error",
         });
     }
 };
 
-//export function
+// Export function
 module.exports = {
-    findPosts,  
+    findPosts,
     createPost,
-}
+};
